@@ -1,4 +1,7 @@
+import 'dart:ui' as UI;
+
 import 'package:flutter/material.dart';
+import 'package:mine_sweeper/game_board/util.dart';
 import 'package:mine_sweeper/provider/game_state_provider.dart';
 import 'package:mine_sweeper/view/game_view.dart';
 import 'package:mine_sweeper/view/gameinfo_entry_view.dart';
@@ -23,10 +26,10 @@ class _GameScreenState extends State<GameScreen> {
     super.dispose();
   }
 
+
+
   @override
   Widget build(BuildContext context) {
-    print(MediaQuery.of(context).size.width);
-
     return Scaffold(
       body: Consumer<GameStateProvider>(
         builder: (context, provider, child) {

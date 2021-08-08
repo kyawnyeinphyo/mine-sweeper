@@ -95,12 +95,24 @@ class _BoardState extends State<Board> {
     super.dispose();
   }
 
+  Future<Map<String, UI.Image>> loadGameAsset() async {
+    final map = Map<String, UI.Image>();
+
+    map['grass'] = await loadImage('asset/grass40x40.png');
+    map['flag'] = await loadImage('asset/flag32x32.png');
+    map['mine'] = await loadImage('asset/mine32x32.png');
+    map['spade'] = await loadImage('asset/spade32x32.png');
+    map['tool'] = await loadImage('asset/tool32x32.png');
+
+    return map;
+  }
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<GameController>.value(
       value: widget.controller,
-      child: FutureBuilder<UI.Image>(
-        future: loadImage('asset/grass40x40.png'),
+      child: FutureBuilder<Map<String, UI.Image>>(
+        future: loadGameAsset(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) return Container();
 
@@ -140,7 +152,7 @@ class _BoardState extends State<Board> {
                         return CustomPaint(
                           size: Size.infinite,
                           painter: _BoardPainter(
-                              grassImage: snapshot.data!,
+                              gameAsset: snapshot.data!,
                               col: widget.column,
                               row: widget.row,
                               currentCell: notifier.currentCell,
@@ -164,14 +176,14 @@ class _BoardPainter extends CustomPainter {
   final int row;
   final int currentCell;
   final List<Cell> board;
-  final UI.Image grassImage;
+  final Map<String, UI.Image> gameAsset;
 
   _BoardPainter({
     required this.col,
     required this.row,
     required this.currentCell,
     required this.board,
-    required this.grassImage,
+    required this.gameAsset,
   });
 
   @override
@@ -183,28 +195,52 @@ class _BoardPainter extends CustomPainter {
       return Rect.fromLTWH(offset.dx, offset.dy, cellSide, cellSide);
     }
 
-    final textStyle = UI.TextStyle(fontSize: 20);
-
     for (int n = 0; n < (row * col); n++) {
       if (board[n].isBomb && board[n].checked) {
-        canvas.drawRect(rect(n), cellPaint..color = Colors.red);
+        // canvas.drawRect(rect(n), cellPaint..color = Colors.red);
+        canvas.drawImage(gameAsset['grass']!, cellPosition(n, col), Paint());
+
+        final r = rect(n);
+
+        canvas.drawImage(
+          gameAsset['mine']!,
+          r.center - Offset(16, 16),
+          Paint()
+            ..colorFilter =
+                UI.ColorFilter.mode(Colors.red, UI.BlendMode.srcATop),
+        );
       } else if (board[n].checked) {
         canvas.drawRect(rect(n), cellPaint..color = Colors.orange);
       } else if (board[n].flag) {
-        canvas.drawRect(rect(n), cellPaint..color = Colors.blue);
+        canvas.drawImage(gameAsset['grass']!, cellPosition(n, col), Paint());
+
+        final r = rect(n);
+
+        canvas.drawImage(
+          gameAsset['flag']!,
+          r.center - Offset(16, 16),
+          Paint()
+            ..colorFilter =
+                UI.ColorFilter.mode(Colors.deepOrange, UI.BlendMode.srcATop),
+        );
       } else {
-        canvas.drawImage(grassImage, cellPosition(n, col), Paint());
+        canvas.drawImage(gameAsset['grass']!, cellPosition(n, col), Paint());
       }
 
       if (!board[n].isBomb && board[n].nearBomb != 0 && board[n].checked) {
-        final paragraph = buildParagraph(
-          board[n].nearBomb.toString(),
-          textStyle: textStyle,
+        final textPainter = TextPainter(
+          text: TextSpan(
+              text: board[n].nearBomb.toString(),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+          textDirection: TextDirection.ltr,
         );
 
-        canvas.drawParagraph(
-          paragraph,
-          rect(n).center,
+        textPainter.layout(minWidth: 0, maxWidth: double.maxFinite);
+
+        final r = rect(n);
+        textPainter.paint(
+          canvas,
+          r.center - Offset(textPainter.width / 2, textPainter.height / 2),
         );
       }
     }

@@ -43,10 +43,12 @@ int calculatePosition(Offset localPosition, int r, int c) {
 }
 
 UI.Paragraph buildParagraph(String text, {UI.TextStyle? textStyle}) {
+
+
   final builder = UI.ParagraphBuilder(
     UI.ParagraphStyle(
       textAlign: TextAlign.center,
-      height: 0.5,
+      height: 1,
       textDirection: TextDirection.ltr,
     ),
   );

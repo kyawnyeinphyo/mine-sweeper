@@ -1,7 +1,7 @@
 {
     "name": "mine_sweeper",
     "short_name": "mine_sweeper",
-    "start_url": ".",
+    "start_url": "/mine_sweeper",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",

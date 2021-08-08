@@ -201,6 +201,8 @@ class GameController extends ChangeNotifier {
         if (_stateBoard[n].flag) return;
 
         if (_stateBoard[n].isBomb) {
+
+          _stateBoard[n].checked = true;
           _checkGameOver();
 
           notifyListeners();
